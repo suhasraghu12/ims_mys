@@ -56,9 +56,14 @@ password and Cloudinary secret live **only** in the server's `.env` — never in
 Sync runs on open, a few seconds after every save, every 2 minutes, and when the internet comes back.
 If two phones change the same record, the most recent change wins. PIN and backup date stay per phone.
 
-**Hosting** (e.g. Render / Railway web service): build command `npm install && npm run build`, start command
-`npm start`, and add `MONGO_URI`, `MONGO_DB_NAME`, `SHOP_KEY`, `CLOUDINARY_URL` as environment variables. In Atlas → Network
-Access, allow the host's outgoing IPs. To cut off a lost phone, change `SHOP_KEY` and reconnect the others.
+**Hosting on Netlify** (app + API on one site): Netlify → *Add new site → Import from GitHub* → pick this repo.
+`netlify.toml` already sets the build (`npm run build` → `dist/`) and deploys `server/api.js` as a function on
+`/api/*`. In *Site configuration → Environment variables* add `MONGO_URI`, `MONGO_DB_NAME`, `SHOP_KEY`,
+`CLOUDINARY_URL`, then redeploy. In Atlas → Network Access allow `0.0.0.0/0` (Netlify functions have no fixed IP).
+On the phone, leave the server address empty in Settings → Cloud sync.
+
+Any Node host works too (Render / Railway): build `npm install && npm run build`, start `npm start`, same variables.
+To cut off a lost phone, change `SHOP_KEY` and reconnect the others.
 
 ## Things to know
 
@@ -83,4 +88,6 @@ Access, allow the host's outgoing IPs. To cut off a lost phone, change `SHOP_KEY
 | `src/styles.css` | Design tokens and styles (light + dark) |
 | `vite.config.js` | Build + PWA manifest and offline service worker |
 | `src/lib/sync.js` | Cloud sync: push/pull, photo upload/download, auto-sync |
-| `server/index.js` | Sync API on MongoDB + private photo storage on Cloudinary (Express); serves the built app |
+| `server/api.js` | The cloud API: sync on MongoDB, private photos on Cloudinary |
+| `netlify/functions/api.mjs` | Runs the API as a Netlify Function on `/api/*` |
+| `server/index.js` | Local / Node-host server: serves `dist/` and the same API |

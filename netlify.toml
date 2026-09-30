@@ -1,0 +1,20 @@
+# Netlify: builds the app into dist/ and deploys the API as a function on /api/*
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  # Ship these as normal packages instead of bundling them (they have optional native parts)
+  external_node_modules = ["mongodb", "cloudinary"]
+
+# The app shell must always be fresh so phones pick up new versions
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
